@@ -70,15 +70,15 @@ func TestAllCases(t *testing.T) {
 			` + "```"),
 		},
 		TestCase{
-			Input: []byte(`This text is ___really important___`),
+			Input:  []byte(`This text is ___really important___`),
 			Output: []byte(`This text is *_really important_*`),
 		},
 		TestCase{
-			Input: []byte(`This text is **_really important_**`),
+			Input:  []byte(`This text is **_really important_**`),
 			Output: []byte(`This text is *_really important_*`),
 		},
 		TestCase{
-			Input: []byte(`This is really***very***important text.`),
+			Input:  []byte(`This is really***very***important text.`),
 			Output: []byte(`This is really*_very_*important text.`),
 		},
 		TestCase{
@@ -93,7 +93,7 @@ func TestAllCases(t *testing.T) {
 `),
 		},
 		TestCase{
-			Input: []byte(`~~This is really***very***important text.~~`),
+			Input:  []byte(`~~This is really***very***important text.~~`),
 			Output: []byte(`~This is really*_very_*important text.~`),
 		},
 		TestCase{
@@ -107,9 +107,17 @@ func TestAllCases(t *testing.T) {
 - Fourth item
 `),
 		},
+		TestCase{
+			Input:  []byte(`[test](https://google.com)`),
+			Output: []byte(`https://google.com`),
+		},
+		TestCase{
+			Input: []byte(`
+        test`),
+			Output: []byte(`
+         test`),
+		},
 	}
-
-
 
 	t.Log("tst")
 	for _, test := range tests {
