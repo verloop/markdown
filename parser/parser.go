@@ -11,7 +11,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/gomarkdown/markdown/ast"
+	"github.com/verloop/markdown/ast"
 )
 
 // Extensions is a bitmask of enabled parser extensions.
@@ -156,31 +156,31 @@ func NewWithExtensions(extension Extensions) *Parser {
 	p.inlineCallback[' '] = maybeLineBreak
 	p.inlineCallback['*'] = emphasis
 	p.inlineCallback['_'] = emphasis
-	if p.extensions&Strikethrough != 0 {
-		p.inlineCallback['~'] = emphasis
-	}
-	p.inlineCallback['`'] = codeSpan
+	// if p.extensions&Strikethrough != 0 {
+	p.inlineCallback['~'] = emphasis
+	// }
+	// p.inlineCallback['`'] = codeSpan
 	p.inlineCallback['\n'] = lineBreak
 	p.inlineCallback['['] = link
-	p.inlineCallback['<'] = leftAngle
-	p.inlineCallback['\\'] = escape
-	p.inlineCallback['&'] = entity
-	p.inlineCallback['!'] = maybeImage
-	if p.extensions&Mmark != 0 {
-		p.inlineCallback['('] = maybeShortRefOrIndex
-	}
-	p.inlineCallback['^'] = maybeInlineFootnoteOrSuper
-	if p.extensions&Autolink != 0 {
-		p.inlineCallback['h'] = maybeAutoLink
-		p.inlineCallback['m'] = maybeAutoLink
-		p.inlineCallback['f'] = maybeAutoLink
-		p.inlineCallback['H'] = maybeAutoLink
-		p.inlineCallback['M'] = maybeAutoLink
-		p.inlineCallback['F'] = maybeAutoLink
-	}
-	if p.extensions&MathJax != 0 {
-		p.inlineCallback['$'] = math
-	}
+	// p.inlineCallback['<'] = leftAngle
+	// p.inlineCallback['\\'] = escape
+	// p.inlineCallback['&'] = entity
+	// p.inlineCallback['!'] = maybeImage
+	// if p.extensions&Mmark != 0 {
+	// 	p.inlineCallback['('] = maybeShortRefOrIndex
+	// }
+	// p.inlineCallback['^'] = maybeInlineFootnoteOrSuper
+	// if p.extensions&Autolink != 0 {
+	// 	p.inlineCallback['h'] = maybeAutoLink
+	// 	p.inlineCallback['m'] = maybeAutoLink
+	// 	p.inlineCallback['f'] = maybeAutoLink
+	// 	p.inlineCallback['H'] = maybeAutoLink
+	// 	p.inlineCallback['M'] = maybeAutoLink
+	// 	p.inlineCallback['F'] = maybeAutoLink
+	// }
+	// if p.extensions&MathJax != 0 {
+	// 	p.inlineCallback['$'] = math
+	// }
 
 	return &p
 }

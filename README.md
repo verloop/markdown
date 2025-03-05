@@ -1,8 +1,8 @@
 # Markdown Parser and HTML Renderer for Go
 
-[![pkg.go.dev](https://pkg.go.dev/badge/github.com/gomarkdown/markdown)](https://pkg.go.dev/github.com/gomarkdown/markdown)
+[![pkg.go.dev](https://pkg.go.dev/badge/github.com/verloop/markdown)](https://pkg.go.dev/github.com/verloop/markdown)
 
-Package `github.com/gomarkdown/markdown` is a Go library for parsing Markdown text and rendering as HTML.
+Package `github.com/verloop/markdown` is a Go library for parsing Markdown text and rendering as HTML.
 
 It's very fast and supports common extensions.
 
@@ -19,10 +19,10 @@ Those examples are also in [examples](./examples) directory.
 
 ## API Docs:
 
-- https://pkg.go.dev/github.com/gomarkdown/markdown : top level package
-- https://pkg.go.dev/github.com/gomarkdown/markdown/ast : defines abstract syntax tree of parsed markdown document
-- https://pkg.go.dev/github.com/gomarkdown/markdown/parser : parser
-- https://pkg.go.dev/github.com/gomarkdown/markdown/html : html renderer
+- https://pkg.go.dev/github.com/verloop/markdown : top level package
+- https://pkg.go.dev/github.com/verloop/markdown/ast : defines abstract syntax tree of parsed markdown document
+- https://pkg.go.dev/github.com/verloop/markdown/parser : parser
+- https://pkg.go.dev/github.com/verloop/markdown/html : html renderer
 
 ## Usage
 
@@ -34,10 +34,10 @@ package main
 import (
 	"os"
 
-	"github.com/gomarkdown/markdown"
-	"github.com/gomarkdown/markdown/ast"
-	"github.com/gomarkdown/markdown/html"
-	"github.com/gomarkdown/markdown/parser"
+	"github.com/verloop/markdown"
+	"github.com/verloop/markdown/ast"
+	"github.com/verloop/markdown/html"
+	"github.com/verloop/markdown/parser"
 
 	"fmt"
 )
@@ -87,7 +87,7 @@ Here's an example of simple usage with Bluemonday:
 ```go
 import (
     "github.com/microcosm-cc/bluemonday"
-    "github.com/gomarkdown/markdown"
+    "github.com/verloop/markdown"
 )
 
 // ...
@@ -97,14 +97,14 @@ html := bluemonday.UGCPolicy().SanitizeBytes(maybeUnsafeHTML)
 
 ## mdtohtml command-line tool
 
-https://github.com/gomarkdown/mdtohtml is a command-line markdown to html
+https://github.com/verloop/mdtohtml is a command-line markdown to html
 converter built using this library.
 
 You can also use it as an example of how to use the library.
 
 You can install it with:
 
-    go get -u github.com/gomarkdown/mdtohtml
+    go get -u github.com/verloop/mdtohtml
 
 To run: `mdtohtml input-file [output-file]`
 
@@ -126,7 +126,7 @@ To run: `mdtohtml input-file [output-file]`
 
   NOTE: "safety" in this context means _runtime safety only_. In order to
   protect yourself against JavaScript injection in untrusted content, see
-  [this example](https://github.com/gomarkdown/markdown#sanitize-untrusted-content).
+  [this example](https://github.com/verloop/markdown#sanitize-untrusted-content).
 
 - **Fast**. It is fast enough to render on-demand in
   most web applications without having to cache the output.
@@ -285,7 +285,7 @@ implements the following extensions:
 
 ## Users
 
-Some tools using this package: https://pkg.go.dev/github.com/gomarkdown/markdown?tab=importedby
+Some tools using this package: https://pkg.go.dev/github.com/verloop/markdown?tab=importedby
 
 ## History
 

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/gomarkdown/markdown/html"
+	"github.com/verloop/markdown/html"
 )
 
 func TestEsc(t *testing.T) {

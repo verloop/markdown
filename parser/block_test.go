@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/gomarkdown/markdown/ast"
+	"github.com/verloop/markdown/ast"
 )
 
 func astToString(node ast.Node) string {
@@ -74,7 +74,7 @@ func TestRect(t *testing.T) {
 	}
 }
 
-// https://github.com/gomarkdown/markdown/issues/326
+// https://github.com/verloop/markdown/issues/326
 func TestInfiniteLoopFix(t *testing.T) {
 	input := "```\n: la"
 	p := NewWithExtensions(CommonExtensions)
@@ -86,7 +86,7 @@ func TestInfiniteLoopFix(t *testing.T) {
 }
 
 // TODO: fix parsing for this test case without breaking other test cases
-// https://github.com/gomarkdown/markdown/issues/325
+// https://github.com/verloop/markdown/issues/325
 // this can be fixed by removing p.fenceCodeBlock() call in Parser.quote()
 // but would break other test cases
 func TestBug325(t *testing.T) {
