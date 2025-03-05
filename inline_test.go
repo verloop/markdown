@@ -6,8 +6,8 @@ import (
 
 	"strings"
 
-	"github.com/gomarkdown/markdown/html"
-	"github.com/gomarkdown/markdown/parser"
+	"github.com/verloop/markdown/html"
+	"github.com/verloop/markdown/parser"
 )
 
 func TestEmphasis(t *testing.T) {
@@ -1295,7 +1295,7 @@ func TestInlineMath(t *testing.T) {
 }
 
 // TODO: not fixed yet. Need to change the logic and update the tests.
-// https://github.com/gomarkdown/markdown/issues/327
+// https://github.com/verloop/markdown/issues/327
 func TestBug327(t *testing.T) {
 	doTestsParam(t, []string{
 		`[site](https://somesite.com/?"s"(b)h)`,

@@ -5,10 +5,10 @@ package main
 import (
 	"fmt"
 
-	"github.com/gomarkdown/markdown"
-	"github.com/gomarkdown/markdown/ast"
-	"github.com/gomarkdown/markdown/html"
-	"github.com/gomarkdown/markdown/parser"
+	"github.com/verloop/markdown"
+	"github.com/verloop/markdown/ast"
+	"github.com/verloop/markdown/html"
+	"github.com/verloop/markdown/parser"
 
 	"bytes"
 	"io"

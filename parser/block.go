@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"unicode"
 
-	"github.com/gomarkdown/markdown/ast"
+	"github.com/verloop/markdown/ast"
 )
 
 // Parsing block-level elements.
@@ -1450,7 +1450,7 @@ gatherlines:
 		// marker but not part of actual fenced code block
 		// for defnition lists we're called after parsing fence code blocks
 		// so we kno this cannot be a fenced block
-		// https://github.com/gomarkdown/markdown/issues/326
+		// https://github.com/verloop/markdown/issues/326
 		if !isDefinitionList && p.extensions&FencedCode != 0 {
 			fenceLineEnd, _ := isFenceLine(chunk, nil, "")
 			if fenceLineEnd > 0 && indent == 0 {
