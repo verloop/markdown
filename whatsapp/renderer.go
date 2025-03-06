@@ -1,4 +1,4 @@
-package html
+package whatsapp
 
 import (
 	"bytes"
@@ -142,13 +142,14 @@ type Renderer struct {
 	sr *SPRenderer
 
 	documentMatter ast.DocumentMatters // keep track of front/main/back matter.
+	listIndex      int
 }
 
 // Escaper defines how to escape HTML special characters
 var Escaper = [256][]byte{
 	'&': []byte("&amp;"),
 	'<': []byte("&lt;"),
-	'>': []byte("&gt;"),
+	//'>': []byte("&gt;"),
 	'"': []byte("&quot;"),
 }
 
@@ -416,12 +417,13 @@ func (r *Renderer) OutHRTag(w io.Writer, attrs []string) {
 func (r *Renderer) Text(w io.Writer, text *ast.Text) {
 	if r.Opts.Flags&Smartypants != 0 {
 		var tmp bytes.Buffer
-		EscapeHTML(&tmp, text.Literal)
+		//EscapeHTML(&tmp, text.Literal)
 		r.sr.Process(w, tmp.Bytes())
 	} else {
-		_, parentIsLink := text.Parent.(*ast.Link)
+		x, parentIsLink := text.Parent.(*ast.Link)
+		fmt.Println(x)
 		if parentIsLink {
-			EscLink(w, text.Literal)
+			//EscLink(w, text.Literal)
 		} else {
 			EscapeHTML(w, text.Literal)
 		}
@@ -467,28 +469,10 @@ func (r *Renderer) HTMLSpan(w io.Writer, span *ast.HTMLSpan) {
 }
 
 func (r *Renderer) linkEnter(w io.Writer, link *ast.Link) {
-	attrs := link.AdditionalAttributes
 	dest := link.Destination
 	dest = AddAbsPrefix(dest, r.Opts.AbsolutePrefix)
-	var hrefBuf bytes.Buffer
-	hrefBuf.WriteString("href=\"")
-	EscLink(&hrefBuf, dest)
-	hrefBuf.WriteByte('"')
-	attrs = append(attrs, hrefBuf.String())
-	if link.NoteID != 0 {
-		r.Outs(w, FootnoteRef(r.Opts.FootnoteAnchorPrefix, link))
-		return
-	}
 
-	attrs = appendLinkAttrs(attrs, r.Opts.Flags, dest)
-	if len(link.Title) > 0 {
-		var titleBuff bytes.Buffer
-		titleBuff.WriteString("title=\"")
-		EscapeHTML(&titleBuff, link.Title)
-		titleBuff.WriteByte('"')
-		attrs = append(attrs, titleBuff.String())
-	}
-	r.OutTag(w, "<a", attrs)
+	r.Outs(w, string(dest))
 }
 
 func (r *Renderer) linkExit(w io.Writer, link *ast.Link) {
@@ -507,8 +491,6 @@ func (r *Renderer) Link(w io.Writer, link *ast.Link, entering bool) {
 
 	if entering {
 		r.linkEnter(w, link)
-	} else {
-		r.linkExit(w, link)
 	}
 }
 
@@ -519,16 +501,7 @@ func (r *Renderer) imageEnter(w io.Writer, image *ast.Image) {
 	}
 	src := image.Destination
 	src = AddAbsPrefix(src, r.Opts.AbsolutePrefix)
-	attrs := BlockAttrs(image)
-	if r.Opts.Flags&LazyLoadImages != 0 {
-		attrs = append(attrs, `loading="lazy"`)
-	}
-
-	s := TagWithAttributes("<img", attrs)
-	s = s[:len(s)-1] // hackish: strip off ">" from end
-	r.Outs(w, s+` src="`)
 	EscLink(w, src)
-	r.Outs(w, `" alt="`)
 }
 
 func (r *Renderer) imageExit(w io.Writer, image *ast.Image) {
@@ -547,8 +520,6 @@ func (r *Renderer) imageExit(w io.Writer, image *ast.Image) {
 func (r *Renderer) Image(w io.Writer, node *ast.Image, entering bool) {
 	if entering {
 		r.imageEnter(w, node)
-	} else {
-		r.imageExit(w, node)
 	}
 }
 
@@ -598,18 +569,16 @@ func (r *Renderer) Paragraph(w io.Writer, para *ast.Paragraph, entering bool) {
 	if SkipParagraphTags(para) {
 		return
 	}
-	if entering {
-		r.paragraphEnter(w, para)
-	} else {
-		r.paragraphExit(w, para)
+	if !entering {
+		r.Outs(w, "\n")
 	}
 }
 
 // Code writes ast.Code node
 func (r *Renderer) Code(w io.Writer, node *ast.Code) {
-	r.Outs(w, "<code>")
-	EscapeHTML(w, node.Literal)
-	r.Outs(w, "</code>")
+	r.Outs(w, "`")
+	//EscapeHTML(w, node.Literal)
+	r.Outs(w, "`")
 }
 
 // HTMLBlock write ast.HTMLBlock node
@@ -708,74 +677,16 @@ func (r *Renderer) HorizontalRule(w io.Writer, node *ast.HorizontalRule) {
 }
 
 func (r *Renderer) listEnter(w io.Writer, nodeData *ast.List) {
-	// TODO: attrs don't seem to be set
-	var attrs []string
-
-	if nodeData.IsFootnotesList {
-		r.Outs(w, "\n<div class=\"footnotes\">\n\n")
-		if r.Opts.Flags&FootnoteNoHRTag == 0 {
-			r.OutHRTag(w, nil)
-			r.CR(w)
-		}
-	}
-	r.CR(w)
-	if IsListItem(nodeData.Parent) {
-		grand := nodeData.Parent.GetParent()
-		if IsListTight(grand) {
-			r.CR(w)
-		}
-	}
-
-	openTag := "<ul"
 	if nodeData.ListFlags&ast.ListTypeOrdered != 0 {
-		if nodeData.Start > 0 {
-			attrs = append(attrs, fmt.Sprintf(`start="%d"`, nodeData.Start))
-		}
-		openTag = "<ol"
-	}
-	if nodeData.ListFlags&ast.ListTypeDefinition != 0 {
-		openTag = "<dl"
-	}
-	attrs = append(attrs, BlockAttrs(nodeData)...)
-	r.OutTag(w, openTag, attrs)
-	r.CR(w)
-}
-
-func (r *Renderer) listExit(w io.Writer, list *ast.List) {
-	closeTag := "</ul>"
-	if list.ListFlags&ast.ListTypeOrdered != 0 {
-		closeTag = "</ol>"
-	}
-	if list.ListFlags&ast.ListTypeDefinition != 0 {
-		closeTag = "</dl>"
-	}
-	r.Outs(w, closeTag)
-
-	//cr(w)
-	//if node.parent.Type != Item {
-	//	cr(w)
-	//}
-	parent := list.Parent
-	switch parent.(type) {
-	case *ast.ListItem:
-		if ast.GetNextNode(list) != nil {
-			r.CR(w)
-		}
-	case *ast.Document, *ast.BlockQuote, *ast.Aside:
-		r.CR(w)
+		r.listIndex = 1
 	}
 
-	if list.IsFootnotesList {
-		r.Outs(w, "\n</div>\n")
-	}
 }
 
 // List writes ast.List node
 func (r *Renderer) List(w io.Writer, list *ast.List, entering bool) {
 	if entering {
 		r.listEnter(w, list)
-	} else {
-		r.listExit(w, list)
 	}
 }
 
@@ -789,34 +700,21 @@ func (r *Renderer) listItemEnter(w io.Writer, listItem *ast.ListItem) {
 		return
 	}
 
-	openTag := "<li>"
-	if listItem.ListFlags&ast.ListTypeDefinition != 0 {
-		openTag = "<dd>"
+	var openTag string
+	if r.listIndex > 0 {
+		openTag = fmt.Sprintf("%d. ", r.listIndex)
+		r.listIndex += 1
+	} else {
+		openTag = "- "
 	}
-	if listItem.ListFlags&ast.ListTypeTerm != 0 {
-		openTag = "<dt>"
-	}
+
 	r.Outs(w, openTag)
 }
 
 func (r *Renderer) listItemExit(w io.Writer, listItem *ast.ListItem) {
-	if listItem.RefLink != nil && r.Opts.Flags&FootnoteReturnLinks != 0 {
-		slug := Slugify(listItem.RefLink)
-		prefix := r.Opts.FootnoteAnchorPrefix
-		link := r.Opts.FootnoteReturnLinkContents
-		s := FootnoteReturnLink(prefix, link, slug)
-		r.Outs(w, s)
-	}
 
-	closeTag := "</li>"
-	if listItem.ListFlags&ast.ListTypeDefinition != 0 {
-		closeTag = "</dd>"
-	}
-	if listItem.ListFlags&ast.ListTypeTerm != 0 {
-		closeTag = "</dt>"
-	}
-	r.Outs(w, closeTag)
-	r.CR(w)
+	r.Outs(w, "\n")
+
 }
 
 // ListItem writes ast.ListItem node
@@ -870,16 +768,16 @@ func (r *Renderer) CodeBlock(w io.Writer, codeBlock *ast.CodeBlock) {
 	attrs = append(attrs, BlockAttrs(codeBlock)...)
 	r.CR(w)
 
-	r.Outs(w, "<pre>")
-	code := TagWithAttributes("<code", attrs)
-	r.Outs(w, code)
+	// r.Outs(w, "<pre>")
+	// code := TagWithAttributes("<code", attrs)
+	// r.Outs(w, code)
 	if r.Opts.Comments != nil {
 		r.EscapeHTMLCallouts(w, codeBlock.Literal)
 	} else {
 		EscapeHTML(w, codeBlock.Literal)
 	}
-	r.Outs(w, "</code>")
-	r.Outs(w, "</pre>")
+	// r.Outs(w, "</code>")
+	// r.Outs(w, "</pre>")
 	if !IsListItem(codeBlock.Parent) {
 		r.CR(w)
 	}
@@ -1020,14 +918,13 @@ func (r *Renderer) RenderNode(w io.Writer, node ast.Node, entering bool) ast.Wal
 	case *ast.NonBlockingSpace:
 		r.NonBlockingSpace(w, node)
 	case *ast.Emph:
-		r.OutOneOf(w, entering, "<em>", "</em>")
+		r.OutOneOf(w, entering, "_", "_")
 	case *ast.Strong:
-		r.OutOneOf(w, entering, "<strong>", "</strong>")
+		r.OutOneOf(w, entering, "*", "*")
 	case *ast.Del:
-		r.OutOneOf(w, entering, "<del>", "</del>")
+		r.OutOneOf(w, entering, "~", "~")
 	case *ast.BlockQuote:
-		tag := TagWithAttributes("<blockquote", BlockAttrs(node))
-		r.OutOneOfCr(w, entering, tag, "</blockquote>")
+		r.OutOneOfCr(w, entering, "> ", "")
 	case *ast.Aside:
 		tag := TagWithAttributes("<aside", BlockAttrs(node))
 		r.OutOneOfCr(w, entering, tag, "</aside>")
@@ -1059,10 +956,10 @@ func (r *Renderer) RenderNode(w io.Writer, node ast.Node, entering bool) ast.Wal
 		r.HTMLSpan(w, node)
 	case *ast.HTMLBlock:
 		r.HTMLBlock(w, node)
-	case *ast.Heading:
-		r.Heading(w, node, entering)
-	case *ast.HorizontalRule:
-		r.HorizontalRule(w, node)
+	// case *ast.Heading:
+	// 	r.Heading(w, node, entering)
+	// case *ast.HorizontalRule:
+	// 	r.HorizontalRule(w, node)
 	case *ast.List:
 		r.List(w, node, entering)
 	case *ast.ListItem:
@@ -1082,12 +979,12 @@ func (r *Renderer) RenderNode(w io.Writer, node ast.Node, entering bool) ast.Wal
 		r.OutOneOfCr(w, entering, "<tfoot>", "</tfoot>")
 	case *ast.Math:
 		r.OutOneOf(w, true, `<span class="math inline">\(`, `\)</span>`)
-		EscapeHTML(w, node.Literal)
+		//EscapeHTML(w, node.Literal)
 		r.OutOneOf(w, false, `<span class="math inline">\(`, `\)</span>`)
 	case *ast.MathBlock:
 		r.OutOneOf(w, entering, `<p><span class="math display">\[`, `\]</span></p>`)
 		if entering {
-			EscapeHTML(w, node.Literal)
+			//EscapeHTML(w, node.Literal)
 		}
 	case *ast.DocumentMatter:
 		r.DocumentMatter(w, node, entering)
@@ -1154,7 +1051,7 @@ func (r *Renderer) writeDocumentHeader(w io.Writer) {
 	if r.Opts.Flags&Smartypants != 0 {
 		r.sr.Process(w, []byte(r.Opts.Title))
 	} else {
-		EscapeHTML(w, []byte(r.Opts.Title))
+		//EscapeHTML(w, []byte(r.Opts.Title))
 	}
 	io.WriteString(w, "</title>\n")
 	io.WriteString(w, r.Opts.Generator)
@@ -1166,14 +1063,14 @@ func (r *Renderer) writeDocumentHeader(w io.Writer) {
 	io.WriteString(w, ">\n")
 	if r.Opts.CSS != "" {
 		io.WriteString(w, "  <link rel=\"stylesheet\" type=\"text/css\" href=\"")
-		EscapeHTML(w, []byte(r.Opts.CSS))
+		//EscapeHTML(w, []byte(r.Opts.CSS))
 		io.WriteString(w, "\"")
 		io.WriteString(w, ending)
 		io.WriteString(w, ">\n")
 	}
 	if r.Opts.Icon != "" {
 		io.WriteString(w, "  <link rel=\"icon\" type=\"image/x-icon\" href=\"")
-		EscapeHTML(w, []byte(r.Opts.Icon))
+		//EscapeHTML(w, []byte(r.Opts.Icon))
 		io.WriteString(w, "\"")
 		io.WriteString(w, ending)
 		io.WriteString(w, ">\n")
@@ -1217,7 +1114,7 @@ func (r *Renderer) writeTOC(w io.Writer, doc ast.Node) {
 				}
 			}
 
-			fmt.Fprintf(&buf, `<a href="#%s">`, nodeData.HeadingID)
+			//fmt.Fprintf(&buf, `<a href="#%s">`, nodeData.HeadingID)
 			headingCount++
 			return ast.GoToNext
 		}
