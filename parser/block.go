@@ -792,7 +792,7 @@ func IsEmpty(data []byte) int {
 			return 0
 		}
 	}
-	i = skipCharN(data, i, '\n', 1)
+	// i = skipCharN(data, i, '\n', 1)
 	return i
 }
 
