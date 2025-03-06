@@ -569,8 +569,10 @@ func (r *Renderer) Paragraph(w io.Writer, para *ast.Paragraph, entering bool) {
 	if SkipParagraphTags(para) {
 		return
 	}
-	if !entering {
-		r.Outs(w, "\n")
+	if entering {
+		r.paragraphEnter(w, para)
+	} else {
+		r.paragraphExit(w, para)
 	}
 }
 
@@ -924,7 +926,7 @@ func (r *Renderer) RenderNode(w io.Writer, node ast.Node, entering bool) ast.Wal
 	case *ast.Del:
 		r.OutOneOf(w, entering, "~", "~")
 	case *ast.BlockQuote:
-		r.OutOneOfCr(w, entering, "> ", "")
+		r.OutOneOfCr(w, entering, ">", "")
 	case *ast.Aside:
 		tag := TagWithAttributes("<aside", BlockAttrs(node))
 		r.OutOneOfCr(w, entering, tag, "</aside>")
@@ -951,7 +953,7 @@ func (r *Renderer) RenderNode(w io.Writer, node ast.Node, entering bool) ast.Wal
 	case *ast.Document:
 		// do nothing
 	case *ast.Paragraph:
-		r.Paragraph(w, node, entering)
+		//r.Paragraph(w, node, entering)
 	case *ast.HTMLSpan:
 		r.HTMLSpan(w, node)
 	case *ast.HTMLBlock:
