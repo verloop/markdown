@@ -1,5 +1,7 @@
 # Markdown Parser and HTML Renderer for Go
 
+#Note: This is a Verloop specific implementation, there are very specific set of MD syntax is being parsed and rendered.
+
 [![pkg.go.dev](https://pkg.go.dev/badge/github.com/gomarkdown/markdown)](https://pkg.go.dev/github.com/gomarkdown/markdown)
 
 Package `github.com/gomarkdown/markdown` is a Go library for parsing Markdown text and rendering as HTML.
