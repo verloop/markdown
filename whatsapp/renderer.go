@@ -926,15 +926,15 @@ func (r *Renderer) RenderNode(w io.Writer, node ast.Node, entering bool) ast.Wal
 	case *ast.BlockQuote:
 		r.OutOneOfCr(w, entering, "> ", "")
 	case *ast.Aside:
-		tag := TagWithAttributes("<aside", BlockAttrs(node))
-		r.OutOneOfCr(w, entering, tag, "</aside>")
+		// tag := TagWithAttributes("<aside", BlockAttrs(node))
+		// r.OutOneOfCr(w, entering, tag, "</aside>")
 	case *ast.Link:
 		r.Link(w, node, entering)
 	case *ast.CrossReference:
 		link := &ast.Link{Destination: append([]byte("#"), node.Destination...)}
 		r.Link(w, link, entering)
 	case *ast.Citation:
-		r.Citation(w, node)
+		// r.Citation(w, node)
 	case *ast.Image:
 		if r.Opts.Flags&SkipImages != 0 {
 			return ast.SkipChildren
@@ -953,57 +953,57 @@ func (r *Renderer) RenderNode(w io.Writer, node ast.Node, entering bool) ast.Wal
 	case *ast.Paragraph:
 		r.Paragraph(w, node, entering)
 	case *ast.HTMLSpan:
-		r.HTMLSpan(w, node)
+		// r.HTMLSpan(w, node)
 	case *ast.HTMLBlock:
-		r.HTMLBlock(w, node)
-	// case *ast.Heading:
-	// 	r.Heading(w, node, entering)
-	// case *ast.HorizontalRule:
+		// r.HTMLBlock(w, node)
+	case *ast.Heading:
+		r.Heading(w, node, entering)
+	case *ast.HorizontalRule:
 	// 	r.HorizontalRule(w, node)
 	case *ast.List:
 		r.List(w, node, entering)
 	case *ast.ListItem:
 		r.ListItem(w, node, entering)
 	case *ast.Table:
-		tag := TagWithAttributes("<table", BlockAttrs(node))
-		r.OutOneOfCr(w, entering, tag, "</table>")
+		// tag := TagWithAttributes("<table", BlockAttrs(node))
+		// r.OutOneOfCr(w, entering, tag, "</table>")
 	case *ast.TableCell:
-		r.TableCell(w, node, entering)
+		// r.TableCell(w, node, entering)
 	case *ast.TableHeader:
-		r.OutOneOfCr(w, entering, "<thead>", "</thead>")
+		// r.OutOneOfCr(w, entering, "<thead>", "</thead>")
 	case *ast.TableBody:
-		r.TableBody(w, node, entering)
+		// r.TableBody(w, node, entering)
 	case *ast.TableRow:
-		r.OutOneOfCr(w, entering, "<tr>", "</tr>")
+		// r.OutOneOfCr(w, entering, "<tr>", "</tr>")
 	case *ast.TableFooter:
-		r.OutOneOfCr(w, entering, "<tfoot>", "</tfoot>")
+		// r.OutOneOfCr(w, entering, "<tfoot>", "</tfoot>")
 	case *ast.Math:
-		r.OutOneOf(w, true, `<span class="math inline">\(`, `\)</span>`)
+		// r.OutOneOf(w, true, `<span class="math inline">\(`, `\)</span>`)
 		//EscapeHTML(w, node.Literal)
-		r.OutOneOf(w, false, `<span class="math inline">\(`, `\)</span>`)
+		// r.OutOneOf(w, false, `<span class="math inline">\(`, `\)</span>`)
 	case *ast.MathBlock:
-		r.OutOneOf(w, entering, `<p><span class="math display">\[`, `\]</span></p>`)
+		// r.OutOneOf(w, entering, `<p><span class="math display">\[`, `\]</span></p>`)
 		if entering {
 			//EscapeHTML(w, node.Literal)
 		}
 	case *ast.DocumentMatter:
-		r.DocumentMatter(w, node, entering)
+		// r.DocumentMatter(w, node, entering)
 	case *ast.Callout:
-		r.Callout(w, node)
+		// r.Callout(w, node)
 	case *ast.Index:
-		r.Index(w, node)
+		// r.Index(w, node)
 	case *ast.Subscript:
-		r.OutOneOf(w, true, "<sub>", "</sub>")
-		if entering {
-			Escape(w, node.Literal)
-		}
-		r.OutOneOf(w, false, "<sub>", "</sub>")
+		// r.OutOneOf(w, true, "<sub>", "</sub>")
+		// if entering {
+		// 	Escape(w, node.Literal)
+		// }
+		// r.OutOneOf(w, false, "<sub>", "</sub>")
 	case *ast.Superscript:
-		r.OutOneOf(w, true, "<sup>", "</sup>")
-		if entering {
-			Escape(w, node.Literal)
-		}
-		r.OutOneOf(w, false, "<sup>", "</sup>")
+		// r.OutOneOf(w, true, "<sup>", "</sup>")
+		// if entering {
+		// 	Escape(w, node.Literal)
+		// }
+		// r.OutOneOf(w, false, "<sup>", "</sup>")
 	case *ast.Footnotes:
 		// nothing by default; just output the list.
 	default:
