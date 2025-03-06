@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/verloop/markdown/ast"
+	"github.com/gomarkdown/markdown/ast"
 )
 
 type CustomNode struct {

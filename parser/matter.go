@@ -3,7 +3,7 @@ package parser
 import (
 	"bytes"
 
-	"github.com/verloop/markdown/ast"
+	"github.com/gomarkdown/markdown/ast"
 )
 
 func (p *Parser) documentMatter(data []byte) int {

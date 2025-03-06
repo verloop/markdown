@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/verloop/markdown/ast"
-	"github.com/verloop/markdown/md"
-	"github.com/verloop/markdown/parser"
+	"github.com/gomarkdown/markdown/ast"
+	"github.com/gomarkdown/markdown/md"
+	"github.com/gomarkdown/markdown/parser"
 )
 
 func TestMd(t *testing.T) {
@@ -67,7 +67,7 @@ func hashtag(p *parser.Parser, data []byte, offset int) (int, ast.Node) {
 	}
 	link := &ast.Link{
 		Destination: append([]byte("/search?q=%23"), data[1:i]...),
-		Title:       data[0:i],
+		Title: data[0:i],
 	}
 	ast.AppendChild(link, &ast.Text{Leaf: ast.Leaf{Literal: data[0:i]}})
 	return i + 1, link

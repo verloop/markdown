@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/verloop/markdown"
-	"github.com/verloop/markdown/ast"
-	mdhtml "github.com/verloop/markdown/html"
+	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/ast"
+	mdhtml "github.com/gomarkdown/markdown/html"
 
 	"github.com/alecthomas/chroma"
 	"github.com/alecthomas/chroma/formatters/html"

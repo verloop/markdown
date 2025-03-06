@@ -2,11 +2,10 @@ package markdown
 
 import (
 	"bytes"
+	"github.com/gomarkdown/markdown/ast"
+	"github.com/gomarkdown/markdown/html"
+	"github.com/gomarkdown/markdown/parser"
 	"testing"
-
-	"github.com/verloop/markdown/ast"
-	"github.com/verloop/markdown/html"
-	"github.com/verloop/markdown/parser"
 )
 
 func TestPrefixHeaderNoExtensions(t *testing.T) {
@@ -194,7 +193,7 @@ func TestBug126(t *testing.T) {
 	var buf bytes.Buffer
 	ast.Print(&buf, doc)
 	got := buf.String()
-	// TODO: needs fixing https://github.com/verloop/markdown/issues/126
+	// TODO: needs fixing https://github.com/gomarkdown/markdown/issues/126
 	exp := "BlockQuote\n  CodeBlock: '> fenced pre block 1\\n> ```\\n\\n'\n  Paragraph\n    Text 'fenced pre block 2\\n````'\n"
 	if got != exp {
 		t.Errorf("\nInput   [%#v]\nExpected[%#v]\nGot     [%#v]\n",

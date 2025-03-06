@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"github.com/verloop/markdown/ast"
+	"github.com/gomarkdown/markdown/ast"
 )
 
 // Flags control optional behavior of parser.

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/verloop/markdown/parser"
+	"github.com/gomarkdown/markdown/parser"
 )
 
 type testData struct {

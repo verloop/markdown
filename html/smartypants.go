@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"io"
 
-	"github.com/verloop/markdown/parser"
+	"github.com/gomarkdown/markdown/parser"
 )
 
 // SmartyPants rendering

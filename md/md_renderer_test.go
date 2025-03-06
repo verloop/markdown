@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/verloop/markdown"
-	"github.com/verloop/markdown/ast"
+	"github.com/gomarkdown/markdown"
+	"github.com/gomarkdown/markdown/ast"
 )
 
 func TestRenderDocument(t *testing.T) {

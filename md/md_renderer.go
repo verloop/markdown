@@ -6,7 +6,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/verloop/markdown/ast"
+	"github.com/gomarkdown/markdown/ast"
 )
 
 // Renderer renders to markdown. Allows to convert to a canonnical

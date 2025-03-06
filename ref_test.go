@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/verloop/markdown/parser"
+	"github.com/gomarkdown/markdown/parser"
 )
 
 // Markdown 1.0.3 reference tests
@@ -33,7 +33,7 @@ var (
 		"Strong and em together",
 		"Tabs",
 		"Tidyness",
-		// New tests added for verloop
+		// New tests added for gomarkdown
 		"Entities",
 	}
 )
