@@ -420,10 +420,9 @@ func (r *Renderer) Text(w io.Writer, text *ast.Text) {
 		//EscapeHTML(&tmp, text.Literal)
 		r.sr.Process(w, tmp.Bytes())
 	} else {
-		x, parentIsLink := text.Parent.(*ast.Link)
-		fmt.Println(x)
+		_, parentIsLink := text.Parent.(*ast.Link)
 		if parentIsLink {
-			//EscLink(w, text.Literal)
+			EscLink(w, text.Literal)
 		} else {
 			EscapeHTML(w, text.Literal)
 		}
@@ -469,10 +468,28 @@ func (r *Renderer) HTMLSpan(w io.Writer, span *ast.HTMLSpan) {
 }
 
 func (r *Renderer) linkEnter(w io.Writer, link *ast.Link) {
+	attrs := link.AdditionalAttributes
 	dest := link.Destination
 	dest = AddAbsPrefix(dest, r.Opts.AbsolutePrefix)
+	var hrefBuf bytes.Buffer
+	hrefBuf.WriteString("href=\"")
+	EscLink(&hrefBuf, dest)
+	hrefBuf.WriteByte('"')
+	attrs = append(attrs, hrefBuf.String())
+	if link.NoteID != 0 {
+		r.Outs(w, FootnoteRef(r.Opts.FootnoteAnchorPrefix, link))
+		return
+	}
 
-	r.Outs(w, string(dest))
+	attrs = appendLinkAttrs(attrs, r.Opts.Flags, dest)
+	if len(link.Title) > 0 {
+		var titleBuff bytes.Buffer
+		titleBuff.WriteString("title=\"")
+		//EscapeHTML(&titleBuff, link.Title)
+		titleBuff.WriteByte('"')
+		attrs = append(attrs, titleBuff.String())
+	}
+	r.OutTag(w, "<a", attrs)
 }
 
 func (r *Renderer) linkExit(w io.Writer, link *ast.Link) {
@@ -491,6 +508,8 @@ func (r *Renderer) Link(w io.Writer, link *ast.Link, entering bool) {
 
 	if entering {
 		r.linkEnter(w, link)
+	} else {
+		r.linkExit(w, link)
 	}
 }
 
@@ -501,7 +520,16 @@ func (r *Renderer) imageEnter(w io.Writer, image *ast.Image) {
 	}
 	src := image.Destination
 	src = AddAbsPrefix(src, r.Opts.AbsolutePrefix)
+	attrs := BlockAttrs(image)
+	if r.Opts.Flags&LazyLoadImages != 0 {
+		attrs = append(attrs, `loading="lazy"`)
+	}
+
+	s := TagWithAttributes("<img", attrs)
+	s = s[:len(s)-1] // hackish: strip off ">" from end
+	r.Outs(w, s+` src="`)
 	EscLink(w, src)
+	r.Outs(w, `" alt="`)
 }
 
 func (r *Renderer) imageExit(w io.Writer, image *ast.Image) {
@@ -520,6 +548,8 @@ func (r *Renderer) imageExit(w io.Writer, image *ast.Image) {
 func (r *Renderer) Image(w io.Writer, node *ast.Image, entering bool) {
 	if entering {
 		r.imageEnter(w, node)
+	} else {
+		r.imageExit(w, node)
 	}
 }
 
@@ -770,16 +800,16 @@ func (r *Renderer) CodeBlock(w io.Writer, codeBlock *ast.CodeBlock) {
 	attrs = append(attrs, BlockAttrs(codeBlock)...)
 	r.CR(w)
 
-	// r.Outs(w, "<pre>")
-	// code := TagWithAttributes("<code", attrs)
-	// r.Outs(w, code)
+	r.Outs(w, "<pre>")
+	code := TagWithAttributes("<code", attrs)
+	r.Outs(w, code)
 	if r.Opts.Comments != nil {
 		r.EscapeHTMLCallouts(w, codeBlock.Literal)
 	} else {
-		EscapeHTML(w, codeBlock.Literal)
+		//EscapeHTML(w, codeBlock.Literal)
 	}
-	// r.Outs(w, "</code>")
-	// r.Outs(w, "</pre>")
+	r.Outs(w, "</code>")
+	r.Outs(w, "</pre>")
 	if !IsListItem(codeBlock.Parent) {
 		r.CR(w)
 	}
@@ -1116,7 +1146,7 @@ func (r *Renderer) writeTOC(w io.Writer, doc ast.Node) {
 				}
 			}
 
-			//fmt.Fprintf(&buf, `<a href="#%s">`, nodeData.HeadingID)
+			fmt.Fprintf(&buf, `<a href="#%s">`, nodeData.HeadingID)
 			headingCount++
 			return ast.GoToNext
 		}
