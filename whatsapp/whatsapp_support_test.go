@@ -124,9 +124,12 @@ func TestAllCases(t *testing.T) {
 		// 			Output: []byte(`> asdf
 		// `),
 		// },
+		// TestCase{
+		// 	Input:  []byte("asdf\n\n\nasdf\nasf"),
+		// 	Output: []byte("asdf\n\n\nasdf\nasf\n")},
 		TestCase{
-			Input:  []byte("asdf\n\n\nasdf\nasf"),
-			Output: []byte("asdf\n\n\nasdf\nasf\n")},
+			Input:  []byte("# asdf\n# asdf\nasf"),
+			Output: []byte("# asdf\n# asdf\nasf\n")},
 	}
 
 	t.Log("tst")

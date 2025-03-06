@@ -626,30 +626,7 @@ func (r *Renderer) MakeUniqueHeadingID(hdr *ast.Heading) string {
 }
 
 func (r *Renderer) HeadingEnter(w io.Writer, hdr *ast.Heading) {
-	var attrs []string
-	var class string
-	// TODO(miek): add helper functions for coalescing these classes.
-	if hdr.IsTitleblock {
-		class = "title"
-	}
-	if hdr.IsSpecial {
-		if class != "" {
-			class += " special"
-		} else {
-			class = "special"
-		}
-	}
-	if class != "" {
-		attrs = []string{`class="` + class + `"`}
-	}
 
-	if hdr.HeadingID != "" {
-		id := r.MakeUniqueHeadingID(hdr)
-		attrID := `id="` + id + `"`
-		attrs = append(attrs, attrID)
-	}
-	attrs = append(attrs, BlockAttrs(hdr)...)
-	r.CR(w)
 	f := ""
 	for range hdr.Level {
 		f = f + "#"
@@ -669,8 +646,6 @@ func (r *Renderer) HeadingExit(w io.Writer, hdr *ast.Heading) {
 func (r *Renderer) Heading(w io.Writer, hdr *ast.Heading, entering bool) {
 	if entering {
 		r.HeadingEnter(w, hdr)
-	} else {
-		r.HeadingExit(w, hdr)
 	}
 }
 
