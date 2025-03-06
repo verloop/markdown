@@ -147,10 +147,10 @@ type Renderer struct {
 
 // Escaper defines how to escape HTML special characters
 var Escaper = [256][]byte{
-	'&': []byte("&amp;"),
-	'<': []byte("&lt;"),
+	// '&': []byte("&amp;"),
+	// '<': []byte("&lt;"),
 	//'>': []byte("&gt;"),
-	'"': []byte("&quot;"),
+	// '"': []byte("&quot;"),
 }
 
 // EscapeHTML writes html-escaped d to w. It escapes &, <, > and " characters.
@@ -650,11 +650,16 @@ func (r *Renderer) HeadingEnter(w io.Writer, hdr *ast.Heading) {
 	}
 	attrs = append(attrs, BlockAttrs(hdr)...)
 	r.CR(w)
-	r.OutTag(w, HeadingOpenTagFromLevel(hdr.Level), attrs)
+	f := ""
+	for range hdr.Level {
+		f = f + "#"
+	}
+	f += " "
+	r.Outs(w, f)
 }
 
 func (r *Renderer) HeadingExit(w io.Writer, hdr *ast.Heading) {
-	r.Outs(w, HeadingCloseTagFromLevel(hdr.Level))
+	// r.Outs(w, HeadingCloseTagFromLevel(hdr.Level))
 	if !(IsListItem(hdr.Parent) && ast.GetNextNode(hdr) == nil) {
 		r.CR(w)
 	}
@@ -931,15 +936,15 @@ func (r *Renderer) RenderNode(w io.Writer, node ast.Node, entering bool) ast.Wal
 	case *ast.Link:
 		r.Link(w, node, entering)
 	case *ast.CrossReference:
-		link := &ast.Link{Destination: append([]byte("#"), node.Destination...)}
-		r.Link(w, link, entering)
+		// link := &ast.Link{Destination: append([]byte("#"), node.Destination...)}
+		// r.Link(w, link, entering)
 	case *ast.Citation:
 		// r.Citation(w, node)
 	case *ast.Image:
-		if r.Opts.Flags&SkipImages != 0 {
-			return ast.SkipChildren
-		}
-		r.Image(w, node, entering)
+		// if r.Opts.Flags&SkipImages != 0 {
+		// 	return ast.SkipChildren
+		// }
+		// r.Image(w, node, entering)
 	case *ast.Code:
 		r.Code(w, node)
 	case *ast.CodeBlock:
