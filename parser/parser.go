@@ -153,7 +153,7 @@ func NewWithExtensions(extension Extensions) *Parser {
 	p.oldTip = p.Doc
 	p.lastMatchedContainer = p.Doc
 
-	p.inlineCallback[' '] = maybeLineBreak
+	// p.inlineCallback[' '] = maybeLineBreak
 	p.inlineCallback['*'] = emphasis
 	p.inlineCallback['_'] = emphasis
 	// if p.extensions&Strikethrough != 0 {
