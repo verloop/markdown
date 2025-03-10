@@ -1669,35 +1669,35 @@ func (p *Parser) paragraph(data []byte) int {
 		}
 
 		// an underline under some text marks a heading, so our paragraph ended on prev line
-		if i > 0 {
-			if level := p.isUnderlinedHeading(current); level > 0 {
-				// render the paragraph
-				p.renderParagraph(data[:prev])
+		// if i > 0 {
+		// 	if level := p.isUnderlinedHeading(current); level > 0 {
+		// 		// render the paragraph
+		// 		p.renderParagraph(data[:prev])
 
-				// ignore leading and trailing whitespace
-				eol := i - 1
-				for prev < eol && data[prev] == ' ' {
-					prev++
-				}
-				for eol > prev && data[eol-1] == ' ' {
-					eol--
-				}
+		// 		// ignore leading and trailing whitespace
+		// 		eol := i - 1
+		// 		for prev < eol && data[prev] == ' ' {
+		// 			prev++
+		// 		}
+		// 		for eol > prev && data[eol-1] == ' ' {
+		// 			eol--
+		// 		}
 
-				block := &ast.Heading{
-					Level: level,
-				}
-				if p.extensions&AutoHeadingIDs != 0 {
-					block.HeadingID = sanitizeHeadingID(string(data[prev:eol]))
-					p.allHeadingsWithAutoID = append(p.allHeadingsWithAutoID, block)
-				}
+		// 		block := &ast.Heading{
+		// 			Level: level,
+		// 		}
+		// 		if p.extensions&AutoHeadingIDs != 0 {
+		// 			block.HeadingID = sanitizeHeadingID(string(data[prev:eol]))
+		// 			p.allHeadingsWithAutoID = append(p.allHeadingsWithAutoID, block)
+		// 		}
 
-				block.Content = data[prev:eol]
-				p.AddBlock(block)
+		// 		block.Content = data[prev:eol]
+		// 		p.AddBlock(block)
 
-				// find the end of the underline
-				return skipUntilChar(data, i, '\n')
-			}
-		}
+		// 		// find the end of the underline
+		// 		return skipUntilChar(data, i, '\n')
+		// 	}
+		// }
 
 		// if the next line starts a block of HTML, then the paragraph ends here
 		if p.extensions&LaxHTMLBlocks != 0 {
