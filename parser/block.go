@@ -263,7 +263,7 @@ func (p *Parser) Block(data []byte) {
 		// ______
 		if isHRule(data) {
 			i := skipUntilChar(data, 0, '\n')
-			hr := ast.HorizontalRule{}
+			hr := ast.Text{Leaf: ast.Leaf{Literal: data[:i]}}
 			hr.Literal = bytes.Trim(data[:i], " \n")
 			p.AddBlock(&hr)
 			data = data[i:]
