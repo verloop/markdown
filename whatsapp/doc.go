@@ -1,5 +1,5 @@
 /*
-Package html implements HTML renderer of parsed markdown document.
+Package whatsapp implements HTML renderer of parsed markdown document.
 
 # Configuring and customizing a renderer
 
@@ -40,4 +40,4 @@ links or code blocks.
 	}
 	renderer := html.NewRenderer(opts)
 */
-package html
+package whatsapp

@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"unicode"
 
-	"github.com/gomarkdown/markdown/ast"
+	"github.com/verloop/markdown/ast"
 )
 
 // Parsing block-level elements.
@@ -263,8 +263,9 @@ func (p *Parser) Block(data []byte) {
 		// ______
 		if isHRule(data) {
 			i := skipUntilChar(data, 0, '\n')
-			hr := ast.HorizontalRule{}
+			hr := ast.Text{Leaf: ast.Leaf{Literal: data[:i]}}
 			hr.Literal = bytes.Trim(data[:i], " \n")
+			hr.Literal = []byte("\n" + string(hr.Literal))
 			p.AddBlock(&hr)
 			data = data[i:]
 			continue
@@ -792,7 +793,7 @@ func IsEmpty(data []byte) int {
 			return 0
 		}
 	}
-	i = skipCharN(data, i, '\n', 1)
+	// i = skipCharN(data, i, '\n', 1)
 	return i
 }
 
@@ -1450,7 +1451,7 @@ gatherlines:
 		// marker but not part of actual fenced code block
 		// for defnition lists we're called after parsing fence code blocks
 		// so we kno this cannot be a fenced block
-		// https://github.com/gomarkdown/markdown/issues/326
+		// https://github.com/verloop/markdown/issues/326
 		if !isDefinitionList && p.extensions&FencedCode != 0 {
 			fenceLineEnd, _ := isFenceLine(chunk, nil, "")
 			if fenceLineEnd > 0 && indent == 0 {
@@ -1669,35 +1670,35 @@ func (p *Parser) paragraph(data []byte) int {
 		}
 
 		// an underline under some text marks a heading, so our paragraph ended on prev line
-		if i > 0 {
-			if level := p.isUnderlinedHeading(current); level > 0 {
-				// render the paragraph
-				p.renderParagraph(data[:prev])
+		// if i > 0 {
+		// 	if level := p.isUnderlinedHeading(current); level > 0 {
+		// 		// render the paragraph
+		// 		p.renderParagraph(data[:prev])
 
-				// ignore leading and trailing whitespace
-				eol := i - 1
-				for prev < eol && data[prev] == ' ' {
-					prev++
-				}
-				for eol > prev && data[eol-1] == ' ' {
-					eol--
-				}
+		// 		// ignore leading and trailing whitespace
+		// 		eol := i - 1
+		// 		for prev < eol && data[prev] == ' ' {
+		// 			prev++
+		// 		}
+		// 		for eol > prev && data[eol-1] == ' ' {
+		// 			eol--
+		// 		}
 
-				block := &ast.Heading{
-					Level: level,
-				}
-				if p.extensions&AutoHeadingIDs != 0 {
-					block.HeadingID = sanitizeHeadingID(string(data[prev:eol]))
-					p.allHeadingsWithAutoID = append(p.allHeadingsWithAutoID, block)
-				}
+		// 		block := &ast.Heading{
+		// 			Level: level,
+		// 		}
+		// 		if p.extensions&AutoHeadingIDs != 0 {
+		// 			block.HeadingID = sanitizeHeadingID(string(data[prev:eol]))
+		// 			p.allHeadingsWithAutoID = append(p.allHeadingsWithAutoID, block)
+		// 		}
 
-				block.Content = data[prev:eol]
-				p.AddBlock(block)
+		// 		block.Content = data[prev:eol]
+		// 		p.AddBlock(block)
 
-				// find the end of the underline
-				return skipUntilChar(data, i, '\n')
-			}
-		}
+		// 		// find the end of the underline
+		// 		return skipUntilChar(data, i, '\n')
+		// 	}
+		// }
 
 		// if the next line starts a block of HTML, then the paragraph ends here
 		if p.extensions&LaxHTMLBlocks != 0 {
