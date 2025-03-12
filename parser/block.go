@@ -265,6 +265,7 @@ func (p *Parser) Block(data []byte) {
 			i := skipUntilChar(data, 0, '\n')
 			hr := ast.Text{Leaf: ast.Leaf{Literal: data[:i]}}
 			hr.Literal = bytes.Trim(data[:i], " \n")
+			hr.Literal = []byte("\n" + string(hr.Literal))
 			p.AddBlock(&hr)
 			data = data[i:]
 			continue
