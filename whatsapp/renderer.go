@@ -143,6 +143,7 @@ type Renderer struct {
 
 	documentMatter ast.DocumentMatters // keep track of front/main/back matter.
 	listIndex      int
+	firstLine      bool
 }
 
 // Escaper defines how to escape HTML special characters
@@ -187,6 +188,7 @@ func Escape(w io.Writer, text []byte) {
 			continue
 		}
 		w.Write([]byte{text[i]})
+
 	}
 }
 
@@ -210,8 +212,8 @@ func NewRenderer(opts RendererOptions) *Renderer {
 	}
 
 	return &Renderer{
-		Opts: opts,
-
+		Opts:       opts,
+		firstLine:  true,
 		closeTag:   closeTag,
 		headingIDs: make(map[string]int),
 
@@ -326,6 +328,7 @@ func (r *Renderer) OutTag(w io.Writer, name string, attrs []string) {
 		s += " " + strings.Join(attrs, " ")
 	}
 	io.WriteString(w, s+">")
+	r.firstLine = false
 	r.lastOutputLen = 1
 }
 
@@ -371,6 +374,7 @@ func (r *Renderer) Out(w io.Writer, d []byte) {
 		d = htmlTagRe.ReplaceAll(d, []byte{})
 	}
 	w.Write(d)
+	r.firstLine = false
 }
 
 // Outs is a helper to write data to writer
@@ -380,6 +384,7 @@ func (r *Renderer) Outs(w io.Writer, s string) {
 		s = htmlTagRe.ReplaceAllString(s, "")
 	}
 	io.WriteString(w, s)
+	r.firstLine = false
 }
 
 // CR writes a new line
@@ -632,7 +637,12 @@ func (r *Renderer) HeadingEnter(w io.Writer, hdr *ast.Heading) {
 		f = f + "#"
 	}
 	f += " "
-	r.Outs(w, f)
+	if r.firstLine {
+		r.Outs(w, f)
+	} else {
+		r.Outs(w, "\n"+f)
+	}
+
 }
 
 func (r *Renderer) HeadingExit(w io.Writer, hdr *ast.Heading) {
@@ -733,8 +743,10 @@ Parse:
 		escSeq := Escaper[d[i]]
 		if escSeq != nil {
 			w.Write(escSeq)
+			r.firstLine = false
 		} else {
 			w.Write([]byte{d[i]})
+			r.firstLine = false
 		}
 	}
 }
@@ -894,7 +906,7 @@ func (r *Renderer) RenderNode(w io.Writer, node ast.Node, entering bool) ast.Wal
 		r.CR(w)
 		// TODO: make it configurable via out(renderer.softbreak)
 	case *ast.Hardbreak:
-		r.HardBreak(w, node)
+		// r.HardBreak(w, node)
 	case *ast.NonBlockingSpace:
 		r.NonBlockingSpace(w, node)
 	case *ast.Emph:
@@ -1004,12 +1016,14 @@ func (r *Renderer) RenderHeader(w io.Writer, ast ast.Node) {
 func (r *Renderer) RenderFooter(w io.Writer, _ ast.Node) {
 	if r.documentMatter != ast.DocumentMatterNone {
 		r.Outs(w, "</section>\n")
+		r.firstLine = false
 	}
 
 	if r.Opts.Flags&CompletePage == 0 {
 		return
 	}
 	io.WriteString(w, "\n</body>\n</html>\n")
+	r.firstLine = false
 }
 
 func (r *Renderer) writeDocumentHeader(w io.Writer) {
@@ -1027,6 +1041,7 @@ func (r *Renderer) writeDocumentHeader(w io.Writer) {
 		io.WriteString(w, "<html>\n")
 	}
 	io.WriteString(w, "<head>\n")
+	r.firstLine = false
 	io.WriteString(w, "  <title>")
 	if r.Opts.Flags&Smartypants != 0 {
 		r.sr.Process(w, []byte(r.Opts.Title))
@@ -1074,6 +1089,7 @@ func (r *Renderer) writeTOC(w io.Writer, doc ast.Node) {
 			inHeading = entering
 			if !entering {
 				buf.WriteString("</a>")
+				r.firstLine = false
 				return ast.GoToNext
 			}
 			if nodeData.HeadingID == "" {
@@ -1081,16 +1097,19 @@ func (r *Renderer) writeTOC(w io.Writer, doc ast.Node) {
 			}
 			if nodeData.Level == tocLevel {
 				buf.WriteString("</li>\n\n<li>")
+				r.firstLine = false
 			} else if nodeData.Level < tocLevel {
 				for nodeData.Level < tocLevel {
 					tocLevel--
 					buf.WriteString("</li>\n</ul>")
 				}
 				buf.WriteString("</li>\n\n<li>")
+				r.firstLine = false
 			} else {
 				for nodeData.Level > tocLevel {
 					tocLevel++
 					buf.WriteString("\n<ul>\n<li>")
+					r.firstLine = false
 				}
 			}
 
