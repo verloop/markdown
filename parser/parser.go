@@ -163,7 +163,7 @@ func NewWithExtensions(extension Extensions) *Parser {
 	p.inlineCallback['\n'] = lineBreak
 	p.inlineCallback['['] = link
 	// p.inlineCallback['<'] = leftAngle
-	// p.inlineCallback['\\'] = escape
+	p.inlineCallback['\\'] = escape
 	// p.inlineCallback['&'] = entity
 	// p.inlineCallback['!'] = maybeImage
 	// if p.extensions&Mmark != 0 {
