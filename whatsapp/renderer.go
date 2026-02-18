@@ -639,7 +639,7 @@ func (r *Renderer) HeadingEnter(w io.Writer, hdr *ast.Heading) {
 func (r *Renderer) HeadingExit(w io.Writer, hdr *ast.Heading) {
 	// r.Outs(w, HeadingCloseTagFromLevel(hdr.Level))
 	if !(IsListItem(hdr.Parent) && ast.GetNextNode(hdr) == nil) {
-		r.CR(w)
+		r.Outs(w, "\n")
 	}
 }
 
@@ -647,6 +647,8 @@ func (r *Renderer) HeadingExit(w io.Writer, hdr *ast.Heading) {
 func (r *Renderer) Heading(w io.Writer, hdr *ast.Heading, entering bool) {
 	if entering {
 		r.HeadingEnter(w, hdr)
+	} else {
+		r.HeadingExit(w, hdr)
 	}
 }
 
