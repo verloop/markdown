@@ -631,18 +631,9 @@ func (r *Renderer) MakeUniqueHeadingID(hdr *ast.Heading) string {
 }
 
 func (r *Renderer) HeadingEnter(w io.Writer, hdr *ast.Heading) {
-
-	f := ""
-	for range hdr.Level {
-		f = f + "#"
+	if !r.firstLine {
+		r.Outs(w, "\n")
 	}
-	f += " "
-	if r.firstLine {
-		r.Outs(w, f)
-	} else {
-		r.Outs(w, "\n"+f)
-	}
-
 }
 
 func (r *Renderer) HeadingExit(w io.Writer, hdr *ast.Heading) {
