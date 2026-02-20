@@ -648,14 +648,14 @@ func (r *Renderer) HeadingEnter(w io.Writer, hdr *ast.Heading) {
 func (r *Renderer) HeadingExit(w io.Writer, hdr *ast.Heading) {
 	// r.Outs(w, HeadingCloseTagFromLevel(hdr.Level))
 	if !(IsListItem(hdr.Parent) && ast.GetNextNode(hdr) == nil) {
-		r.CR(w)
+		r.Outs(w, "\n")
 	}
 }
 
 // Heading writes ast.Heading node
 func (r *Renderer) Heading(w io.Writer, hdr *ast.Heading, entering bool) {
-	if entering {
-		r.HeadingEnter(w, hdr)
+	if !entering {
+		r.HeadingExit(w, hdr)
 	}
 }
 

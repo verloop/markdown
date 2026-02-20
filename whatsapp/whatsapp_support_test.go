@@ -11,10 +11,10 @@ package whatsapp
 // - Numbered List: 1. text
 
 import (
+	"bytes"
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/verloop/markdown"
 	"github.com/verloop/markdown/parser"
 )
@@ -27,121 +27,122 @@ func TestAllCases(t *testing.T) {
 	}
 
 	tests := []TestCase{
-		// 		TestCase{
-		// 			Input: []byte(`test
-		// 					case`),
-		// 			Output: []byte(`testcase`),
-		// 		},
-		// 		TestCase{
-		// 			Input:  []byte(`*test*`),
-		// 			Output: []byte(`_test_`),
-		// 		},
-		// 		TestCase{
-		// 			Input:  []byte(`_test_`),
-		// 			Output: []byte(`_test_`),
-		// 		},
-		// 		TestCase{
-		// 			Input:  []byte(`**test**`),
-		// 			Output: []byte(`*test*`),
-		// 		},
-		// 		TestCase{
-		// 			Input:  []byte(`__test__`),
-		// 			Output: []byte(`*test*`),
-		// 		},
-		// 		TestCase{
-		// 			Input: []byte(`*_test*
-		// 					testing`),
-		// 			Output: []byte(`__test_
-		// 					testing`),
-		// 		},
-		// 		TestCase{
-		// 			Input:  []byte(`_*test*_`),
-		// 			Output: []byte(`__test__`),
-		// 		},
-		// 		TestCase{
-		// 			Input: []byte(`_test_
-		// 					> asd
-		// 					` + "```" + `
-		// 					asd
-		// 					` + "```"),
-		// 			Output: []byte(`_test_
-		// 					> asd
-		// 					` + "```" + `
-		// 					asd
-		// 					` + "```"),
-		// 		},
-		// 		TestCase{
-		// 			Input:  []byte(`This text is ___really important___`),
-		// 			Output: []byte(`This text is *_really important_*`),
-		// 		},
-		// 		TestCase{
-		// 			Input:  []byte(`This text is **_really important_**`),
-		// 			Output: []byte(`This text is *_really important_*`),
-		// 		},
-		// 		TestCase{
-		// 			Input:  []byte(`This is really***very***important text.`),
-		// 			Output: []byte(`This is really*_very_*important text.`),
-		// 		},
-		// 		TestCase{
-		// 			Input: []byte(`1. First item
-		// 		2. Second item
-		// 		3. Third item
-		// 		4. Fourth item`),
-		// 			Output: []byte(`1. First item
-		// 		2. Second item
-		// 		3. Third item
-		// 		4. Fourth item
-		// 		`),
-		// 		},
-		// 		TestCase{
-		// 			Input:  []byte(`~~This is really***very***important text.~~`),
-		// 			Output: []byte(`~This is really*_very_*important text.~`),
-		// 		},
-		// 		TestCase{
-		// 			Input: []byte(`- First item
-		// 		- Second item
-		// 		- Third item
-		// 		- Fourth item`),
-		// 			Output: []byte(`- First item
-		// 		- Second item
-		// 		- Third item
-		// 		- Fourth item
-		// 		`),
-		// 		},
-		// 		TestCase{
-		// 			Input:  []byte(`[test](https://google.com)`),
-		// 			Output: []byte(`https://google.com`),
-		// 		},
-		// 		TestCase{
-		// 			Input: []byte("asdf\n\n\nasdf\n\nasdf"),
-		// 			Output: []byte(`asdf
-		// asdf
-		// asdf
-		// `),
-		// 		},
-		// 		TestCase{
-		// 			Input: []byte("> asdf"),
-		// 			Output: []byte(`> asdf
-		// `),
-		// },
-		// TestCase{
-		// 	Input:  []byte("asdf\n\n\nasdf\nasf"),
-		// 	Output: []byte("asdf\n\n\nasdf\nasf\n")},
-		TestCase{
-			Input:  []byte("# asdf\n# asdf\nasf"),
-			Output: []byte("# asdf\n# asdf\nasf\n")},
+		{
+			Input:  []byte(`normal text`),
+			Output: []byte("normal text\n"),
+		},
+		{
+			Input:  []byte(`**bold**`),
+			Output: []byte("*bold*\n"),
+		},
+		{
+			Input:  []byte(`*italic*`),
+			Output: []byte("_italic_\n"),
+		},
+		{
+			Input:  []byte(`~~strike~~`),
+			Output: []byte("~strike~\n"),
+		},
+		{
+			Input:  []byte("> quote"),
+			Output: []byte("> quote\n"),
+		},
+		{
+			Input:  []byte("```\ncode block\n```"),
+			Output: []byte("code block\n"),
+		},
+		{
+			Input:  []byte("`code`"),
+			Output: []byte("`code`\n"),
+		},
+		{
+			Input:  []byte(`**bold** and *italic* and ~~strike~~`),
+			Output: []byte("*bold* and _italic_ and ~strike~\n"),
+		},
+		{
+			Input:  []byte("- First item\n- Second item\n- Third item"),
+			Output: []byte("- First item\n- Second item\n- Third item\n"),
+		},
+		{
+			Input:  []byte("1. First item\n2. Second item\n3. Third item"),
+			Output: []byte("1. First item\n2. Second item\n3. Third item\n"),
+		},
+		{
+			Input:  []byte("* First item\n* Second item\n* Third item"),
+			Output: []byte("- First item\n- Second item\n- Third item\n"),
+		},
+		{
+			Input:  []byte("```go\nfmt.Println(\"hello\")\n```"),
+			Output: []byte("fmt.Println(\"hello\")\n"),
+		},
+		{
+			Input:  []byte(`\"Cards\"`),
+			Output: []byte("\"Cards\"\n"),
+		},
+		{
+			Input:  []byte(`\'Option A\'`),
+			Output: []byte("'Option A'\n"),
+		},
+		{
+			Input:  []byte(`[Link Text](https://verloop.io)`),
+			Output: []byte("https://verloop.io\n"),
+		},
+		{
+			Input:  []byte(`[](https://verloop.io)`),
+			Output: []byte("https://verloop.io\n"),
+		},
+		{
+			Input:  []byte(`check this out [Link Text](https://verloop.io) and more text`),
+			Output: []byte("check this out https://verloop.io and more text\n"),
+		},
+		{
+			Input:  []byte(`https://verloop.io`),
+			Output: []byte("https://verloop.io\n"),
+		},
+		{
+			Input:  []byte(`# Heading level 1`),
+			Output: []byte("Heading level 1\n"),
+		},
+		{
+			Input:  []byte(`## Heading level 2`),
+			Output: []byte("Heading level 2\n"),
+		},
+		{
+			Input:  []byte(`### Heading level 3`),
+			Output: []byte("Heading level 3\n"),
+		},
+		{
+			Input:  []byte(`###### Heading level 6`),
+			Output: []byte("Heading level 6\n"),
+		},
+		{
+			Input:  []byte("some text\n# Heading"),
+			Output: []byte("some text\nHeading\n"),
+		},
+		{
+			Input:  []byte("# Heading 1\n## Heading 2\n### Heading 3"),
+			Output: []byte("Heading 1\n\nHeading 2\n\nHeading 3\n"),
+		},
+		{
+			Input:  []byte("# Heading\nsome text below"),
+			Output: []byte("Heading\n\nsome text below\n"),
+		},
 	}
 
 	t.Log("tst")
 	for _, test := range tests {
-		testParser := parser.New()
-		parsed := testParser.Parse(test.Input)
-		opts := RendererOptions{}
-		ren := NewRenderer(opts)
-		res := markdown.Render(parsed, ren)
-		t.Log(string(test.Input), "--", string(test.Output), "---->", string(res))
-		assert.Equal(t, test.Output, res)
-		fmt.Println(string(res))
+		t.Run(string(test.Input), func(t *testing.T) {
+			testParser := parser.New()
+			parsed := testParser.Parse(test.Input)
+			opts := RendererOptions{}
+			ren := NewRenderer(opts)
+			res := markdown.Render(parsed, ren)
+			t.Log(string(test.Input), "--", string(test.Output), "---->", string(res))
+			if !bytes.Equal(test.Output, res) {
+				t.Errorf("input: %q\nexpected: %q\nactual:   %q", string(test.Input), string(test.Output), string(res))
+			}
+			fmt.Println(string(res))
+		})
 	}
 
 }
