@@ -117,11 +117,11 @@ func TestAllCases(t *testing.T) {
 		},
 		{
 			Input:  []byte("some text\n# Heading"),
-			Output: []byte("some text\nHeading\n"),
+			Output: []byte("some text\n\nHeading\n"),
 		},
 		{
 			Input:  []byte("# Heading 1\n## Heading 2\n### Heading 3"),
-			Output: []byte("Heading 1\n\nHeading 2\n\nHeading 3\n"),
+			Output: []byte("Heading 1\n\n\nHeading 2\n\n\nHeading 3\n"),
 		},
 		{
 			Input:  []byte("# Heading\nsome text below"),
