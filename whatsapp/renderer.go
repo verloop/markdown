@@ -654,7 +654,12 @@ func (r *Renderer) HeadingExit(w io.Writer, hdr *ast.Heading) {
 
 // Heading writes ast.Heading node
 func (r *Renderer) Heading(w io.Writer, hdr *ast.Heading, entering bool) {
-	if !entering {
+	if entering {
+		prev := ast.GetPrevNode(hdr)
+		if prev != nil {
+			r.Outs(w, "\n")
+		}
+	} else {
 		r.HeadingExit(w, hdr)
 	}
 }
